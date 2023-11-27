@@ -41,7 +41,7 @@ void loop() {
       // is capable of following a wall autonomously.
 
       int speed = PDcontroller.Process(30); //distance in [cm]
-      PIcontroller.Process(300+speed,300-speed); //speed in [[mm/s]]
+      PIcontroller.Run(300+speed,300-speed); //speed in [[mm/s]]
 
       // SharpSONPrinter.PrintData();
 
