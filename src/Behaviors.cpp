@@ -2,6 +2,9 @@
 #include "Behaviors.h"
 #include "Speed_controller.h"
 #include "Position_estimation.h"
+#include "apriltagdatum.h"
+#include "openmv.h"
+#include "Wire.h"
 
 //sensors
 Romi32U4ButtonA buttonA;
@@ -9,8 +12,15 @@ Romi32U4ButtonA buttonA;
 //motor-speed controller
 SpeedController robot;
 
+//Camera controller
+OpenMV camera;
+
 void Behaviors::Init(void)
 {
+    robot.Init();
+    delay(1000);
+    Wire.begin();
+    Wire.setClock(100000ul);
     robot.Init();
 }
 
@@ -35,13 +45,24 @@ void Behaviors::Run(void)
         break;
     
     case DRIVE:
-        robot_state = DRIVE;
-        // ! assignment
-        robot.Straight(100,10); //velocity, duration
-        // robot.Turn(180,0); //degrees, direction
-        robot.Curved(85.7125,114.2875,10); //velocity left, velocity right, duration
-        robot.Stop(); 
-        robot_state = IDLE;
+        if(buttonA.getSingleDebouncedRelease()) {
+            robot_state = IDLE;
+            robot.Stop();
+        } else {
+            delay(1);   
+            //    Serial.print("counts:");
+            uint8_t numTags = camera.getTagCount();
+            //    Serial.println(numTags);
+            AprilTagDatum aprltag;
+            while(numTags > 0)
+            {
+                camera.readTag(aprltag);
+                Serial.print("id:");
+                Serial.println(aprltag.id);
+                numTags--;
+            }
+            robot_state = DRIVE;
+        }
         break;
     }
 }
