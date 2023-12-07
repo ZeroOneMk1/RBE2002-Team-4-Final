@@ -1,6 +1,49 @@
 #include "Position_estimation.h"
 #include "Encoders.h"
 
+#include <Arduino.h>
+
+/**
+ * sendMessage creates a string of the form
+ *      topic:message
+ * which is what the corresponding ESP32 code expects.
+ * */
+void Position::sendMessage(const String& topic, const String& message)
+{
+    Serial1.println(topic + String(':') + message);
+}
+
+String serString1;
+
+bool Position::checkSerial1(void)
+{
+    while(Serial1.available())
+    {
+        char c = Serial1.read();
+        serString1 += c;
+
+        if(c == '\n')
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Position::setup() 
+{
+    Serial.begin(115200);
+    delay(100);  //give it a moment to bring up the Serial
+
+    Serial.println("setup()");
+
+    Serial1.begin(115200);
+    digitalWrite(0, HIGH); // Set internal pullup on RX1 to avoid spurious signals
+
+    Serial.println("/setup()");
+}
+
 Encoder RomiEncoders;
 float x = 0;
 float y = 0;
@@ -8,12 +51,15 @@ float theta = 0;
 unsigned long time_prev = millis();
 unsigned long time_now = 0;
 
+
+
 void Position::Init(void)
 {
     time_prev = millis();
     x = 0;
     y = 0;
     theta = 0;
+    setup();
 }
 
 void Position::Stop(void)
@@ -31,6 +77,9 @@ Position::pose_data Position::ReadPose(void)
 
 void Position::PrintPose(void)
 {
+    sendMessage("Position/x", String(x));
+    sendMessage("Position/y", String(y));
+    sendMessage("Position/theta", String(theta));
     Serial.print(x);
     Serial.print('\t');
     Serial.print(y);
