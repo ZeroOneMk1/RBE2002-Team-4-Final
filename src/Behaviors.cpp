@@ -9,6 +9,10 @@ Romi32U4ButtonA buttonA;
 //motor-speed controller
 SpeedController robot;
 
+//Flags
+int target_room = -1;
+int in_corridoor = 0;
+
 void Behaviors::Init(void)
 {
     robot.Init();
@@ -19,8 +23,25 @@ void Behaviors::Stop(void)
     robot.Stop();
 }
 
+int Behaviors::getTargetRoom(void)
+{
+    return -1; // TODO Azura will fix this.
+}
+
+int Behaviors::getInHallway(void)
+{
+    return 0; // TODO Caleb, make this return 1 f it's in the hallway.
+}
+
+void Behaviors::SetFlags(void)
+{
+    target_room = getTargetRoom();
+    in_corridoor = getInHallway();
+}
+
 void Behaviors::Run(void)
 {
+    SetFlags();
     switch (robot_state)
     {
     case IDLE:

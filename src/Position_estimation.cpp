@@ -80,11 +80,11 @@ void Position::PrintPose(void)
     sendMessage("Position/x", String(x));
     sendMessage("Position/y", String(y));
     sendMessage("Position/theta", String(theta));
-    Serial.print(x);
-    Serial.print('\t');
-    Serial.print(y);
-    Serial.print('\t');
-    Serial.println(theta);
+    // Serial.print(x);
+    // Serial.print('\t');
+    // Serial.print(y);
+    // Serial.print('\t');
+    // Serial.println(theta);
 }
 
 void Position::UpdatePose(float target_speed_left, float target_speed_right)

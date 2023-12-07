@@ -12,6 +12,10 @@ class Behaviors{
         void Init(void); /// a and b
         void Stop(void);
         void Run(void);
+        void SetFlags(void);
+        int getTargetRoom(void);
+        int getInHallway(void);
+
 };
 
 #endif
