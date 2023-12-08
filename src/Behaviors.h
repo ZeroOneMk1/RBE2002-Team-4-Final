@@ -25,7 +25,6 @@ class Behaviors{
         void Stop(void);
         void Run(void);
         void setTargetRoom(void);
-        void setInHallway(void);
         void setConfirmDelivery(void);
         void setWallDistance(enum DIRECTION);
         int collisionDetected(void);
