@@ -13,16 +13,6 @@ Romi32U4ButtonA buttonA;
 //motor-speed controller
 SpeedController robot;
 
-//Flags
-int target_room = -1;
-int collisions = 0;
-int in_hallway = 0;
-int confirm_delivery = 0;
-float distR = 0;
-int distL = 0;
-int distF = 0;
-int april = 5; // ? Is NOTAG, but I'm confused why it doesn't accept NOTAG
-
 void Behaviors::Init(void)
 {
     robot.Init();
