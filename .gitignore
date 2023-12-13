@@ -34,3 +34,7 @@
 # Other
 .vscode
 .DS_Store
+
+#platformio files/vscode
+/.pio
+/.vscode
