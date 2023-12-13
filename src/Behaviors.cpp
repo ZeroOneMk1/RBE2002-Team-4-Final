@@ -76,7 +76,7 @@ void Behaviors::setFlags(void)
             }
         } else if(serString1.startsWith("DeliveryCofirm:")){
             Serial1.print("EDITING CONFIRM");
-            int conf = (bool) (serString1.substring(5).toInt());
+            bool conf = (bool) (serString1.substring(16).toInt());
             if(conf){
                 confirm_delivery = true;
             }else{
