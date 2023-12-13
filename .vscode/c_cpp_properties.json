@@ -10,6 +10,7 @@
             "includePath": [
                 "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/include",
                 "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/src",
+                "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/.pio/libdeps/a-star32U4/openmv-apriltags/src",
                 "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/.pio/libdeps/a-star32U4/wpi-32u4-library/src",
                 "C:/Users/caleb/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                 "C:/Users/caleb/.platformio/packages/framework-arduino-avr/cores/arduino",
@@ -25,6 +26,7 @@
                 "path": [
                     "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/include",
                     "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/src",
+                    "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/.pio/libdeps/a-star32U4/openmv-apriltags/src",
                     "C:/Users/caleb/Documents/WPI/RBE2002/FinalProject/Github/RBE2002-Team-4-Final/.pio/libdeps/a-star32U4/wpi-32u4-library/src",
                     "C:/Users/caleb/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                     "C:/Users/caleb/.platformio/packages/framework-arduino-avr/cores/arduino",

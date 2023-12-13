@@ -4,6 +4,7 @@
 #include "Position_estimation.h"
 #include "apriltagdatum.h"
 #include "openmv.h"
+#include "Wire.h"
 
 #define WALLDIST 10
 #define THRESHOLD_HIGH 45
@@ -20,12 +21,16 @@ SpeedController robot;
 
 void Behaviors::Init(void)
 {
-    robot.Init();
+    // robot.Init();
+    delay(1000);
+    Wire.begin();
+    Wire.setClock(100000ul);
+    // robot.Init();
 }
 
 void Behaviors::Stop(void)
 {
-    robot.Stop();
+    // robot.Stop();
 }
 
 void Behaviors::setTargetRoom(void)
@@ -63,8 +68,8 @@ Behaviors::APRILTAG Behaviors::getAprilTag(void)
     //    Serial.println(numTags);
     AprilTagDatum aprltag;
     camera.readTag(aprltag);
-    uint8_t tagID = aprltag.id;
-    if(tagID <=4)
+    uint16_t tagID = aprltag.id;
+    if(tagID <=4 && numTags > 0)
     {
         return (APRILTAG)tagID;
     }
