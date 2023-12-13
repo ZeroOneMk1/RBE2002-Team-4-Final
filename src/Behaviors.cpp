@@ -13,6 +13,8 @@ Romi32U4ButtonA buttonA;
 //motor-speed controller
 SpeedController robot;
 
+// Serial String
+
 bool Behaviors::checkSerial1(void)
 {
     while(Serial1.available())
@@ -62,14 +64,14 @@ void Behaviors::setFlags(void)
             int roomValue = serString1.substring(5).toInt();
             // Store the result in target_room
             switch(roomValue){
-                case 0:
-                    target_room = ROOM0;
-                    break;
                 case 1:
                     target_room = ROOM1;
                     break;
                 case 2:
                     target_room = ROOM2;
+                    break;
+                case 3:
+                    target_room = ROOM3;
                     break;
                 default:
                     target_room = -1;
