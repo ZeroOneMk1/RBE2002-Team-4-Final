@@ -2,6 +2,13 @@
 #include "Behaviors.h"
 #include "Speed_controller.h"
 #include "Position_estimation.h"
+#include "apriltagdatum.h"
+#include "openmv.h"
+#include "Wire.h"
+
+#define WALLDIST 10
+#define THRESHOLD_HIGH 45
+#define THRESHOLD_LOW 55
 
 #define WALLDIST 10
 #define THRESHOLD_HIGH 45
@@ -9,6 +16,9 @@
 
 //sensors
 Romi32U4ButtonA buttonA;
+
+//camera 
+OpenMV camera;
 
 //motor-speed controller
 SpeedController robot;
@@ -31,7 +41,7 @@ bool Behaviors::checkSerial1(void)
     return false;
 }
 
-void Behaviors::setup() 
+void Behaviors::setupESP() 
 {
     Serial.begin(115200);
     delay(100);  //give it a moment to bring up the Serial
@@ -47,12 +57,59 @@ void Behaviors::setup()
 void Behaviors::Init(void)
 {
     robot.Init();
-    setup();
+    setupESP();
+    delay(1000);
+    Wire.begin();
+    Wire.setClock(100000ul);
+    // robot.Init();
 }
 
 void Behaviors::Stop(void)
 {
-    robot.Stop();
+    // robot.Stop();
+}
+
+void Behaviors::setTargetRoom(void)
+{
+    target_room = -1; // TODO Azura will add this.
+}
+
+void Behaviors::setConfirmDelivery(void)
+{
+    confirm_delivery = 0; // TODO Azura will add this.
+}
+
+void Behaviors::setWallDistance(enum DIRECTION dir)
+{
+    // Sets appropriate wall distance global to the current distance sensor value.
+    if (dir == LEFT){
+        distL = 0;
+    }else if(dir == RIGHT){
+        distR = 0;
+    }else if(dir == FRONT){
+        distF = 0;
+    } // TODO Whoever's first do this
+}
+
+int Behaviors::collisionDetected(void)
+{
+    // Return true if the IMU records a high spike in acceleration, else returns false.
+    return 1; // TODO Whoever's first do this
+}
+
+// Returns the april tag the Camera is seeing, returning NOTAG if none
+Behaviors::APRILTAG Behaviors::getAprilTag(void)
+{
+    uint8_t numTags = camera.getTagCount();
+    //    Serial.println(numTags);
+    AprilTagDatum aprltag;
+    camera.readTag(aprltag);
+    uint16_t tagID = aprltag.id;
+    if(tagID <=4 && numTags > 0)
+    {
+        return (APRILTAG)tagID;
+    }
+    return NOTAG; 
 }
 
 void Behaviors::setFlags(void)
