@@ -5,23 +5,26 @@
 #include "apriltagdatum.h"
 #include "openmv.h"
 #include "Wire.h"
+#include "Median_filter.h"
+#include "IMU.h"
 
-#define WALLDIST 10
-#define THRESHOLD_HIGH 45
-#define THRESHOLD_LOW 55
-
-#define WALLDIST 10
 #define THRESHOLD_HIGH 45
 #define THRESHOLD_LOW 55
 
 //sensors
 Romi32U4ButtonA buttonA;
+IMU_sensor LSM6;
 
 //camera 
 OpenMV camera;
 
 //motor-speed controller
 SpeedController robot;
+
+//median filter
+MedianFilter med_x;
+MedianFilter med_y;
+MedianFilter med_z;
 
 // Serial String
 
@@ -62,6 +65,10 @@ void Behaviors::Init(void)
     Wire.begin();
     Wire.setClock(100000ul);
     // robot.Init();
+    LSM6.Init();
+    med_x.Init();
+    med_y.Init();
+    med_z.Init();
 }
 
 void Behaviors::Stop(void)
@@ -81,10 +88,15 @@ void Behaviors::setWallDistance(enum DIRECTION dir)
     } // TODO Whoever's first do this
 }
 
-int Behaviors::collisionDetected(void)
+boolean Behaviors::collisionDetected(void)
 {
     // Return true if the IMU records a high spike in acceleration, else returns false.
-    return 1; // TODO Whoever's first do this
+    auto data_acc = LSM6.ReadAcceleration();
+    data[0] = med_x.Filter(data_acc.X)*0.061;
+    data[1] = med_y.Filter(data_acc.Y)*0.061;
+    data[2] = med_z.Filter(data_acc.Z)*0.061;
+    if((pow(pow(data[0]/100.0,2) + pow(data[1]/100.0,2), 0.5) * 100 > threshold)) return 1;
+    else return 0;
 }
 
 // Returns the april tag the Camera is seeing, returning NOTAG if none
