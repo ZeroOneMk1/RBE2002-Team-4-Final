@@ -69,16 +69,6 @@ void Behaviors::Stop(void)
     // robot.Stop();
 }
 
-void Behaviors::setTargetRoom(void)
-{
-    target_room = -1; // TODO Azura will add this.
-}
-
-void Behaviors::setConfirmDelivery(void)
-{
-    confirm_delivery = 0; // TODO Azura will add this.
-}
-
 void Behaviors::setWallDistance(enum DIRECTION dir)
 {
     // Sets appropriate wall distance global to the current distance sensor value.
@@ -162,12 +152,6 @@ int Behaviors::collisionDetected(void)
 {
     // Return true if the IMU records a high spike in acceleration, else returns false.
     return 1; // TODO Whoever's first do this
-}
-
-int Behaviors::getAprilTag(void)
-{
-    // Returns the april tag the Camera is seeing, returning NOTAG if none
-    return NOTAG; // TODO CALEB, return the ENUM
 }
 
 void Behaviors::Run(void)

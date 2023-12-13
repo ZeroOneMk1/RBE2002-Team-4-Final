@@ -29,9 +29,9 @@ class Behaviors{
         void setFlags(void);
         void setWallDistance(enum DIRECTION);
         int collisionDetected(void);
-        int getAprilTag(void);
+        APRILTAG getAprilTag(void);
         bool checkSerial1(void);
-        void setup();
+        void setupESP();
 };
 
 #endif
