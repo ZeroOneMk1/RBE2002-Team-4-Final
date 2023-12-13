@@ -12,7 +12,7 @@ class SpeedController{
         int counts = 1440; // ! assignment
         int leftReflectance = 21;
         int rightReflectance = 22;
-        float linefollowkp = 0.15;
+        float linefollowkp = 0.05;
 
     public:
         void Init(void);

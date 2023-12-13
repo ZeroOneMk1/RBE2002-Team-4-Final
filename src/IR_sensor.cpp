@@ -15,9 +15,11 @@ float IRsensor::ReadData(void)
 {
   //assignment 1.1
   //read out and calibrate your IR sensor, to convert readouts to distance in [cm]
+  // 12cm = close wall = 150 Analog
+  // 53cm = far wall = 100 Analog
   float analogData = analogRead(pin_IR);
   // Serial.println( analogData * (5.0/(pow(2,10))));
-  float expDist = 0.0002657 * analogData - 0.01975;
-  float distance = 1.0/expDist;
+  float expDist = abs(analogData-6.81389);
+  float distance = 4721.35/expDist;
   return distance;
 }

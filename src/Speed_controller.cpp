@@ -87,14 +87,14 @@ void SpeedController::Stop()
 
 // put function definitions here;
 void SpeedController::LineFollow(int speed) {
-  while (analogRead(leftReflectance) >= 300 || analogRead(rightReflectance) >= 300)
+  if (analogRead(leftReflectance) >= 300 || analogRead(rightReflectance) >= 300)
     {
   
        float error = (analogRead(leftReflectance) - analogRead(rightReflectance)) * linefollowkp;
        motors.setEfforts(speed + error, speed - error);
-       Serial.print(analogRead(leftReflectance));
-       Serial.print("              ");
-       Serial.println(analogRead(rightReflectance));
+    //    Serial.print(analogRead(leftReflectance));
+    //    Serial.print("              ");
+    //    Serial.println(analogRead(rightReflectance));
       }
 }
 
