@@ -10,6 +10,9 @@ class SpeedController{
         float E_left = 0; 
         float E_right = 0;
         int counts = 1440; // ! assignment
+        int leftReflectance = 21;
+        int rightReflectance = 22;
+        float linefollowkp = 0.15;
 
     public:
         void Init(void);
@@ -18,6 +21,8 @@ class SpeedController{
         boolean Straight(int, int); //speed, duration
         boolean Curved(int,int,int); //speed left, speed right, duration
         void Stop(void);
+        void LineFollow(int speed);
+
 };
 
 #endif

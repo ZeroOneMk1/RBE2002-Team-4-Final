@@ -200,7 +200,7 @@ void Behaviors::Run(void)
             robot.Curved(50, -50, 1); // TODO Calibrate point turn 90 DEGREE
             robot.Stop();
         }else{
-            robot.Run(100,100);
+            robot.LineFollow(100);
         }
         break;
 
@@ -290,7 +290,7 @@ void Behaviors::Run(void)
         **/
         setWallDistance(FRONT);
         if(distF < ir_sensor.ReadData()){
-            robot.Run(-100, -100);
+            robot.LineFollow(-100);
         }else{
             if(collisions >= 3){
                 collisions = 0;
