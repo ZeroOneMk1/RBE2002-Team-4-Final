@@ -20,6 +20,10 @@ class Position{
         pose_data ReadPose(void);
         void PrintPose(void);
         void Stop(void);
+        void setup();
+        void sendMessage(const String&, const String&);
+        bool checkSerial1(void);
+
 };
 
 #endif
