@@ -21,6 +21,9 @@ class Behaviors{
         float distF = 0;
         int april = NOTAG;
         String serString1;
+        int threshold = 600;
+        int threshold_pick_up = 1700;
+        int data[3] = {0};
         
     public:
         void Init(void); /// a and b
@@ -28,10 +31,11 @@ class Behaviors{
         void Run(void);
         void setFlags(void);
         void setWallDistance(enum DIRECTION);
-        int collisionDetected(void);
+        boolean collisionDetected(void);
         APRILTAG getAprilTag(void);
         bool checkSerial1(void);
         void setupESP();
+        boolean DetectCollision(void);
 };
 
 #endif
