@@ -6,13 +6,13 @@
 class Behaviors{
     private:
         enum ROBOT_STATE {IDLE, FORWARD, CHECKD_1, CHECKD_2, KNOCK, REVERSE, WAIT};
-        enum APRILTAG {HOME = 0, ROOM1 = 1, ROOM2 = 2, ROOM3 = 3, HALLWAY = 4, NOTAG};
+        enum APRILTAG {HOME = 0, ROOM1 = 1, ROOM2 = 2, ROOM3 = 3, HALLWAY = 4, NOTAG, NONE};
         enum DIRECTION {RIGHT, LEFT, FRONT};
         ROBOT_STATE robot_state = IDLE; //initial state: IDLE
 
         //FLAGS
 //FLAGS
-        int target_room = -1;
+        APRILTAG target_room = NONE;
         int collisions = 0;
         bool in_hallway = false;
         bool confirm_delivery = false;

@@ -1,7 +1,6 @@
 #include <Romi32U4.h>
 #include "Behaviors.h"
 #include "Speed_controller.h"
-#include "Position_estimation.h"
 #include "apriltagdatum.h"
 #include "openmv.h"
 #include "Wire.h"
@@ -69,7 +68,6 @@ void Behaviors::Init(void)
     delay(1000);
     Wire.begin();
     Wire.setClock(100000ul);
-    // robot.Init();
     LSM6.Init();
     med_x.Init();
     med_y.Init();
@@ -78,13 +76,13 @@ void Behaviors::Init(void)
 
 void Behaviors::Stop(void)
 {
-    // robot.Stop();
+    robot.Stop();
 }
 
 void Behaviors::setWallDistance(enum DIRECTION dir)
 {
     // Sets appropriate wall distance global to the current distance sensor value.
-    delay(100);
+    // delay(100);
     if (dir == LEFT){
         distL = ir_sensor.ReadData();
         Serial.println("LEFTDIST");
@@ -143,7 +141,7 @@ void Behaviors::setFlags(void)
                     target_room = ROOM3;
                     break;
                 default:
-                    target_room = -1;
+                    target_room = NONE;
             }
         } else if(serString1.startsWith("DeliveryCofirm:")){
             Serial1.print("EDITING CONFIRM");
@@ -160,6 +158,7 @@ void Behaviors::setFlags(void)
 
 void Behaviors::Run(void)
 {
+    // // Serial.println("start");
     switch (robot_state)
     {
     case IDLE:
@@ -171,7 +170,7 @@ void Behaviors::Run(void)
             //delay(1000);
             robot_state = FORWARD;
             // setFlags();
-            // if(target_room == -1){
+            // if(target_room == NONE){
             //     // IF FAILS TO SET ROOM, DONT START
             //     robot_state = IDLE;
             // }
@@ -205,38 +204,37 @@ void Behaviors::Run(void)
         **/
         setWallDistance(FRONT);
         april = getAprilTag();
-        //robot.LineFollow(100);
 
         if(april == HALLWAY){
             in_hallway = 1;
         }
 
-        if(buttonA.getSingleDebouncedRelease()) {
-            Serial.println("double pressed");
-            robot_state = IDLE;
-            robot.Stop();
-        }else if(WALL_THRESHOLD > distF){
-            Serial.print("Something");
+        // if(buttonA.getSingleDebouncedRelease()) {
+        //     Serial.println("double pressed");
+        //     robot_state = IDLE;
+        //     robot.Stop();
+        // }else if(WALL_THRESHOLD > distF){
+        if(WALL_THRESHOLD > distF){
+
             if(april == HOME){
                 robot_state = IDLE;
                 robot.Stop();
-            }else{
+            } else {
+                robot.Stop();
                 robot_state = CHECKD_1;
-                Serial.println("turning 90 Right");
+
                 robot.Turn(90, 0);
                 robot.Stop();
             }
         }else if(distF < THRESHOLD_HIGH && distF > THRESHOLD_LOW && in_hallway){
             // Serial.print("Hallway");
             robot_state = CHECKD_1;
-            Serial.println("turning 90 Right HALLWAY");
             robot.Turn(90, 0);
-            Serial.println("DONE");
-            delay(10000);
             robot.Stop();
-        }else{
+
+        } else {
+            delay(15);
             robot.LineFollow(100);
-            // Serial.print("line");
         }
         break;
 
@@ -262,8 +260,7 @@ void Behaviors::Run(void)
             robot_state = IDLE;
         }else{
             Serial.println("turning 180 Left");
-            robot.Turn(90, 1); // CHANGE 180
-            robot.Turn(90, 1); // CHANGE 180
+            robot.Turn(180, 1); // CHANGE 180
             robot.Stop();
             
             robot_state = CHECKD_2;
@@ -282,17 +279,17 @@ void Behaviors::Run(void)
         **/
         setWallDistance(LEFT);
         april = getAprilTag();
-        Serial.println(april);
+        // Serial.println(april);
 
-        if(april == target_room){
-            robot_state = KNOCK;
-            robot.Stop();
-        }else if(april == HALLWAY){
-            in_hallway = 1;
-        }else if(april == HOME){
-            robot.Stop();
-            robot_state = IDLE;
-        }else{
+        // if(april == target_room){
+        //     robot_state = KNOCK;
+        //     robot.Stop();
+        // }else if(april == HALLWAY){
+        //     in_hallway = 1;
+        // }else if(april == HOME){
+        //     robot.Stop();
+        //     robot_state = IDLE;
+        // }else{
             if(distR > distL){
                 Serial.println("R > L -> Turning 180 RIGHT");
                 robot.Turn(90, 0); // TODO get direction
@@ -308,8 +305,8 @@ void Behaviors::Run(void)
                 robot_state = IDLE;
                 robot.Stop();
             }
-            robot.Stop();
-        }
+            // robot.Stop();
+        // }
         break;
 
     // case KNOCK:

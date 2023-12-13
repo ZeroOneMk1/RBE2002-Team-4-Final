@@ -5,14 +5,17 @@
 
 class SpeedController{
     private:
-        const float Kp = 0.5; //Adapt the parameters until your robot moves at the speed you command it to drive
-        const float Ki = 0.1; 
+        const float Kp = 0.15; //Adapt the parameters until your robot moves at the speed you command it to drive
+        const float Ki = 0.05; 
+        const float Kd = 0.02; 
         float E_left = 0; 
         float E_right = 0;
+        float prev_e_left = 0;
+        float prev_e_right = 0;
         int counts = 1440; // ! assignment
         int leftReflectance = 21;
         int rightReflectance = 22;
-        float linefollowkp = 0.05;
+        float linefollowkp = 0.02;
 
     public:
         void Init(void);
