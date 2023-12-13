@@ -13,9 +13,41 @@ Romi32U4ButtonA buttonA;
 //motor-speed controller
 SpeedController robot;
 
+// Serial String
+
+bool Behaviors::checkSerial1(void)
+{
+    while(Serial1.available())
+    {
+        char c = Serial1.read();
+        serString1 += c;
+
+        if(c == '\n')
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Behaviors::setup() 
+{
+    Serial.begin(115200);
+    delay(100);  //give it a moment to bring up the Serial
+
+    Serial.println("setup()");
+
+    Serial1.begin(115200);
+    digitalWrite(0, HIGH); // Set internal pullup on RX1 to avoid spurious signals
+
+    Serial.println("/setup()");
+}
+
 void Behaviors::Init(void)
 {
     robot.Init();
+    setup();
 }
 
 void Behaviors::Stop(void)
@@ -23,14 +55,38 @@ void Behaviors::Stop(void)
     robot.Stop();
 }
 
-void Behaviors::setTargetRoom(void)
+void Behaviors::setFlags(void)
 {
-    target_room = -1; // TODO Azura will add this.
-}
-
-void Behaviors::setConfirmDelivery(void)
-{
-    confirm_delivery = 0; // TODO Azura will add this.
+    if(checkSerial1()) {
+        if (serString1.startsWith("Room:")) {
+            Serial1.print("EDITING ROOM");
+            // Parse the message and extract the room information
+            int roomValue = serString1.substring(5).toInt();
+            // Store the result in target_room
+            switch(roomValue){
+                case 1:
+                    target_room = ROOM1;
+                    break;
+                case 2:
+                    target_room = ROOM2;
+                    break;
+                case 3:
+                    target_room = ROOM3;
+                    break;
+                default:
+                    target_room = -1;
+            }
+        } else if(serString1.startsWith("DeliveryCofirm:")){
+            Serial1.print("EDITING CONFIRM");
+            bool conf = (bool) (serString1.substring(16).toInt());
+            if(conf){
+                confirm_delivery = true;
+            }else{
+                confirm_delivery = false;
+            }
+        }
+        serString1 = "";
+    }
 }
 
 void Behaviors::setWallDistance(enum DIRECTION dir)
@@ -63,10 +119,10 @@ void Behaviors::Run(void)
     {
     case IDLE:
         // The idle state. Robot starts on A button press.
-        // setTargetRoom() reads MQTT and sets the target room.
+        // setFlags() reads MQTT and sets the target room.
         if(buttonA.getSingleDebouncedRelease()){ 
             robot_state = FORWARD;
-            setTargetRoom();
+            setFlags();
             if(target_room == -1){
                 // IF FAILS TO SET ROOM, DONT START
                 robot_state = IDLE;
@@ -74,6 +130,13 @@ void Behaviors::Run(void)
             robot.Stop();             
         } 
         else { 
+            setFlags();
+            // Serial.print("Target Room: ");
+            // Serial.print(target_room);
+            // Serial.print("\n");
+            // Serial.print("Confirm Delivery: ");
+            // Serial.print(confirm_delivery);
+            // Serial.print("\n");
             robot_state = IDLE;
             robot.Stop(); 
         }   
@@ -221,8 +284,9 @@ void Behaviors::Run(void)
         /**
         * @param target_room the april tag enum of the room we're trying to find.
         * @param confirm_delivery the flag that stores if delivery is confirmed via MQTT 
+        * @param setFlags() sets if the delivery was confirmed.
         **/
-        setConfirmDelivery();
+        setFlags();
         if(confirm_delivery){
             target_room = -1;
             robot.Stop();
