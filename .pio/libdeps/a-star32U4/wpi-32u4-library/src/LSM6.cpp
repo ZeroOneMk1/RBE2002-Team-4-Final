@@ -191,6 +191,7 @@ void LSM6::enableDefault(void)
     // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (+/-2 g full scale)
     //writeReg(CTRL1_XL, 0x80);
     setFullScaleAcc(ACC_FS2);
+    setGyroDataOutputRate(ODR13);
 
     // Gyro
 
@@ -198,6 +199,7 @@ void LSM6::enableDefault(void)
     // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
     //writeReg(CTRL2_G, 0x80);
     setFullScaleGyro(GYRO_FS245);
+    setGyroDataOutputRate(ODR13);
     // Common
 
     // 0x04 = 0b00000100
