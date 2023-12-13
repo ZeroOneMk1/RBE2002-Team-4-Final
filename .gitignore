@@ -32,4 +32,5 @@
 *.app
 
 # platformio stuff
-.pio
+/.pio
+/.vscode
