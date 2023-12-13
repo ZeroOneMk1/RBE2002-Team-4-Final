@@ -136,24 +136,6 @@ void Behaviors::setFlags(void)
     }
 }
 
-void Behaviors::setWallDistance(enum DIRECTION dir)
-{
-    // Sets appropriate wall distance global to the current distance sensor value.
-    if (dir == LEFT){
-        distL = 0;
-    }else if(dir == RIGHT){
-        distR = 0;
-    }else if(dir == FRONT){
-        distF = 0;
-    } // TODO Whoever's first do this
-}
-
-int Behaviors::collisionDetected(void)
-{
-    // Return true if the IMU records a high spike in acceleration, else returns false.
-    return 1; // TODO Whoever's first do this
-}
-
 void Behaviors::Run(void)
 {
     switch (robot_state)
