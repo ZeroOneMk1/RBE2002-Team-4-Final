@@ -5,12 +5,8 @@
 #include "apriltagdatum.h"
 #include "openmv.h"
 #include "Wire.h"
+#include "IR_sensor.h"
 
-#define WALLDIST 10
-#define THRESHOLD_HIGH 45
-#define THRESHOLD_LOW 55
-
-#define WALLDIST 10
 #define THRESHOLD_HIGH 45
 #define THRESHOLD_LOW 55
 
@@ -19,6 +15,9 @@ Romi32U4ButtonA buttonA;
 
 //camera 
 OpenMV camera;
+
+//IR sensor
+IRsensor ir_sensor;
 
 //motor-speed controller
 SpeedController robot;
@@ -57,6 +56,7 @@ void Behaviors::setupESP()
 void Behaviors::Init(void)
 {
     robot.Init();
+    ir_sensor.Init();
     setupESP();
     delay(1000);
     Wire.begin();
@@ -186,7 +186,7 @@ void Behaviors::Run(void)
         if(buttonA.getSingleDebouncedRelease()) {
             robot_state = IDLE;
             robot.Stop();
-        }else if(distF < WALLDIST){
+        }else if(distF < ir_sensor.ReadData()){
             if(april == HOME){
                 robot_state = IDLE;
                 robot.Stop();
@@ -289,7 +289,7 @@ void Behaviors::Run(void)
         * @param WALLDIST 
         **/
         setWallDistance(FRONT);
-        if(distF < WALLDIST){
+        if(distF < ir_sensor.ReadData()){
             robot.Run(-100, -100);
         }else{
             if(collisions >= 3){
