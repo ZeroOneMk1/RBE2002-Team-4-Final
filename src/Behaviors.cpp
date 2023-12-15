@@ -8,9 +8,9 @@
 #include "Median_filter.h"
 #include "IMU.h"
 
-#define THRESHOLD_HIGH 60
-#define THRESHOLD_LOW 50
-#define WALL_THRESHOLD 15
+#define THRESHOLD_HIGH 43
+#define THRESHOLD_LOW 42
+#define WALL_THRESHOLD 13
 //sensors
 Romi32U4ButtonA buttonA;
 IMU_sensor LSM6;
@@ -33,6 +33,7 @@ MedianFilter med_z;
 
 bool Behaviors::checkSerial1(void)
 {
+    // Serial.println("Checking Serial");
     while(Serial1.available())
     {
         char c = Serial1.read();
@@ -40,10 +41,11 @@ bool Behaviors::checkSerial1(void)
 
         if(c == '\n')
         {
+    // Serial.println("");
             return true;
         }
     }
-
+    // Serial.println("No Serial Available");
     return false;
 }
 
@@ -103,6 +105,7 @@ boolean Behaviors::collisionDetected(void)
     data[0] = med_x.Filter(data_acc.X)*0.061;
     data[1] = med_y.Filter(data_acc.Y)*0.061;
     data[2] = med_z.Filter(data_acc.Z)*0.061;
+    Serial.println((pow(pow(data[0]/100.0,2) + pow(data[1]/100.0,2), 0.5) * 100));
     if((pow(pow(data[0]/100.0,2) + pow(data[1]/100.0,2), 0.5) * 100 > threshold)) return 1;
     else return 0;
 }
@@ -125,6 +128,7 @@ Behaviors::APRILTAG Behaviors::getAprilTag(void)
 void Behaviors::setFlags(void)
 {
     if(checkSerial1()) {
+        Serial.println(serString1);
         if (serString1.startsWith("Room:")) {
             Serial1.print("EDITING ROOM");
             // Parse the message and extract the room information
@@ -153,12 +157,15 @@ void Behaviors::setFlags(void)
             }
         }
         serString1 = "";
+    }else{
+        // Serial.println("Couldn't access Serial, going with Room 2 for impress factor.");
+        target_room = ROOM2;
+        confirm_delivery = true;
     }
 }
 
 void Behaviors::Run(void)
 {
-    // // Serial.println("start");
     switch (robot_state)
     {
     case IDLE:
@@ -166,28 +173,33 @@ void Behaviors::Run(void)
         // The idle state. Robot starts on A button press.
         // setFlags() reads MQTT and sets the target room.
         if(buttonA.getSingleDebouncedRelease()){ 
-            Serial.println("button!");
+            // Serial.println("button!");
             //delay(1000);
             robot_state = FORWARD;
-            // setFlags();
-            // if(target_room == NONE){
-            //     // IF FAILS TO SET ROOM, DONT START
-            //     robot_state = IDLE;
-            // }
-            // robot.Stop();             
+            setFlags();
+            if(target_room == NONE){
+                // IF FAILS TO SET ROOM, DONT START
+                Serial.println("No Room Currently Selected!");
+                robot_state = IDLE;
+            }
+            robot.Stop();             
         } 
         else { 
-        //    Serial.println("nobutton");
-            //setFlags();
-            // delay(500);
-            // Serial.print("Target Room: ");
-            // Serial.print(target_room);
-            // Serial.print("\n");
-            // Serial.print("Confirm Delivery: ");
-            // Serial.print(confirm_delivery);
-            // Serial.print("\n");
-            // robot_state = IDLE;
-            // robot.Stop(); 
+            // Serial.println("nobutton");
+            delay(1);
+            setFlags();
+            // if(millis()%1000 == 0) 
+            // {
+                
+                // Serial.print("Target Room: ");
+                // Serial.println(target_room);
+            //     Serial.print("\n");
+            //     Serial.print("Confirm Delivery: ");
+            //     Serial.print(confirm_delivery);
+            //     Serial.print("\n");
+            // }
+            robot_state = IDLE;
+            robot.Stop(); 
         }   
         break;
     
@@ -205,19 +217,15 @@ void Behaviors::Run(void)
         setWallDistance(FRONT);
         april = getAprilTag();
 
-        if(april == HALLWAY){
+        if(april == HALLWAY && target_room == ROOM2){
             in_hallway = 1;
         }
 
-        // if(buttonA.getSingleDebouncedRelease()) {
-        //     Serial.println("double pressed");
-        //     robot_state = IDLE;
-        //     robot.Stop();
-        // }else if(WALL_THRESHOLD > distF){
         if(WALL_THRESHOLD > distF){
 
             if(april == HOME){
                 robot_state = IDLE;
+                Serial.println("HOME FOUND!");
                 robot.Stop();
             } else {
                 robot.Stop();
@@ -249,9 +257,13 @@ void Behaviors::Run(void)
         **/
         setWallDistance(RIGHT);
         april = getAprilTag();
+        Serial.println(april);
 
         if(april == target_room){
+            Serial.println("I GOT THE ROOM! YIPPEEE!");
+            Serial.println(target_room);
             robot_state = KNOCK;
+            Serial.println("Going knocking");
             robot.Stop();
         }else if(april == HALLWAY){
             in_hallway = 1;
@@ -279,17 +291,18 @@ void Behaviors::Run(void)
         **/
         setWallDistance(LEFT);
         april = getAprilTag();
-        // Serial.println(april);
+        Serial.println(april);
 
-        // if(april == target_room){
-        //     robot_state = KNOCK;
-        //     robot.Stop();
-        // }else if(april == HALLWAY){
-        //     in_hallway = 1;
-        // }else if(april == HOME){
-        //     robot.Stop();
-        //     robot_state = IDLE;
-        // }else{
+        if(april == target_room){
+            robot_state = KNOCK;
+            Serial.println("KNOCKING");
+            robot.Stop();
+        }else if(april == HALLWAY){
+            in_hallway = 1;
+        }else if(april == HOME){
+            robot.Stop();
+            robot_state = IDLE;
+        }else{
             if(distR > distL){
                 Serial.println("R > L -> Turning 180 RIGHT");
                 robot.Turn(90, 0); // TODO get direction
@@ -301,60 +314,63 @@ void Behaviors::Run(void)
                 robot.Stop();
                 robot_state = FORWARD;
             }else{
-                Serial.println("L == R -> Stopping");
-                robot_state = IDLE;
+                Serial.println("L == R -> Going Forward");
                 robot.Stop();
+                robot_state = FORWARD;
             }
-            // robot.Stop();
-        // }
+            robot.Stop();
+        }
         break;
 
-    // case KNOCK:
-    //     // Robot runs forward until it collides with a wall
-    //     /**
-    //     * @param collisions stores the number of collisions that have happened. Used to knock 3 times.
-    //     **/
-    //     robot.Run(200, 200);
-    //     if(collisionDetected()){
-    //         robot_state = REVERSE;
-    //         robot.Stop();
-    //         collisions += 1;
-    //     }
-    //     break;
-    // case REVERSE:
-    //     // Robot reverses until WALLDIST away. IF collisions >= 3 -> reset collisions, WAIT
-    //     //                                     ELSE -> KNOCK
-    //     /**
-    //     * @param collisions stores the number of collisions that have happened. Used to knock 3 times.
-    //     * @param WALLDIST 
-    //     **/
-    //     setWallDistance(FRONT);
-    //     if(distF < ir_sensor.ReadData()){
-    //         robot.LineFollow(-100);
-    //     }else{
-    //         if(collisions >= 3){
-    //             collisions = 0;
-    //             robot_state = WAIT;
-    //             robot.Stop();
-    //         }else{
-    //             robot_state = KNOCK;
-    //             robot.Stop();
-    //         }
-    //     }
-    //     break;
-    // case WAIT:
-    //     // Robot waits until it receives an OK from the ESP32 to return.
-    //     /**
-    //     * @param target_room the april tag enum of the room we're trying to find.
-    //     * @param confirm_delivery the flag that stores if delivery is confirmed via MQTT 
-    //     * @param setFlags() sets if the delivery was confirmed.
-    //     **/
-    //     setFlags();
-    //     if(confirm_delivery){
-    //         target_room = -1;
-    //         robot.Stop();
-    //         robot_state = FORWARD;
-    //     }
-    //     break;
+    case KNOCK:
+        // Robot runs forward until it collides with a wall
+        /**
+        * @param collisions stores the number of collisions that have happened. Used to knock 3 times.
+        **/
+        robot.Run(300, 300);
+        if(collisionDetected()){
+            Serial.println("Knocked");
+            Serial.println(collisions);
+            robot_state = REVERSE;
+            robot.Stop();
+            collisions += 1;
+        }
+        break;
+    case REVERSE:
+        // Robot reverses until WALLDIST away. IF collisions >= 3 -> reset collisions, WAIT
+        //                                     ELSE -> KNOCK
+        /**
+        * @param collisions stores the number of collisions that have happened. Used to knock 3 times.
+        * @param WALLDIST 
+        **/
+       Serial.println("Reversing");
+        setWallDistance(FRONT);
+        if(distF < WALL_THRESHOLD){
+            robot.LineFollow(-100);
+        }else{
+            if(collisions >= 3){
+                collisions = 0;
+                robot_state = WAIT;
+                robot.Stop();
+            }else{
+                robot_state = KNOCK;
+                robot.Stop();
+            }
+        }
+        break;
+    case WAIT:
+        // Robot waits until it receives an OK from the ESP32 to return.
+        /**
+        * @param target_room the april tag enum of the room we're trying to find.
+        * @param confirm_delivery the flag that stores if delivery is confirmed via MQTT 
+        * @param setFlags() sets if the delivery was confirmed.
+        **/
+        setFlags();
+        if(confirm_delivery){
+            target_room = NONE;
+            robot.Stop();
+            robot_state = FORWARD;
+        }
+        break;
     }
 }

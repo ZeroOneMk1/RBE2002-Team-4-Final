@@ -16,19 +16,10 @@ void SpeedController::Init(void)
 void SpeedController::Run(float target_velocity_left, float target_velocity_right)
 {
     if(MagneticEncoder.UpdateEncoderCounts()){
-        float error = 0;
 
-        if (analogRead(leftReflectance) >= 300 || analogRead(rightReflectance) >= 300)
-        {
-        
-            error = (analogRead(leftReflectance) - analogRead(rightReflectance)) * linefollowkp;
-        }
+        float e_left = target_velocity_left - MagneticEncoder.ReadVelocityLeft();
+        float e_right = target_velocity_right - MagneticEncoder.ReadVelocityRight();
 
-        float e_left = target_velocity_left - MagneticEncoder.ReadVelocityLeft() + error;
-        float e_right = target_velocity_right - MagneticEncoder.ReadVelocityRight() - error;
-
-        Serial.println();
-        
         float dleft = e_left - prev_e_left;
         float dright = e_right - prev_e_right;
 
@@ -109,19 +100,35 @@ void SpeedController::Stop()
 
 // put function definitions here;
 void SpeedController::LineFollow(int speed) {
-    // E_left = 0;
-    // E_right = 0;
-    if (analogRead(leftReflectance) >= 300 || analogRead(rightReflectance) >= 300)
-    {
-       
-        // float error = (analogRead(leftReflectance) - analogRead(rightReflectance)) * linefollowkp;
-        //  Serial.println(speed + error);
-        //  Serial.println(speed - error);
-        Run(speed /*+ error*/, speed /*- error*/);
-    //    Serial.print(analogRead(leftReflectance));
-    //    Serial.print("              ");
-    //    Serial.println(analogRead(rightReflectance));
-      }
+    if(MagneticEncoder.UpdateEncoderCounts()){
+        float error = 0;
+
+        if (analogRead(leftReflectance) >= 300 || analogRead(rightReflectance) >= 300)
+        {
+        
+            error = (analogRead(leftReflectance) - analogRead(rightReflectance)) * linefollowkp;
+        }
+
+        float e_left = speed - MagneticEncoder.ReadVelocityLeft() + error;
+        float e_right = speed - MagneticEncoder.ReadVelocityRight() - error;
+        
+        float dleft = e_left - prev_e_left;
+        float dright = e_right - prev_e_right;
+
+        E_left += e_left;
+        E_right += e_right;
+
+        
+
+        float u_left = Kp*e_left + Ki*E_left + Kd * dleft;
+        float u_right = Kp*e_right + Ki*E_right + Kd * dright;
+
+        prev_e_left = e_left;
+        prev_e_right = e_right;
+
+        motors.setEfforts(u_left,u_right);
+        odometry.UpdatePose(speed,speed); //this is where your newly programmed function is/will be called
+    }
 }
 
 

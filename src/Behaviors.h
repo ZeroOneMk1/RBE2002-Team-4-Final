@@ -21,7 +21,7 @@ class Behaviors{
         float distF = 0;
         int april = NOTAG;
         String serString1;
-        int threshold = 600;
+        int threshold = 300;
         int threshold_pick_up = 1700;
         int data[3] = {0};
         
